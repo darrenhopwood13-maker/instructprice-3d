@@ -49,12 +49,12 @@
 <p class="sub">Spin it, open it, stand in the room with it. This is the layout we would build here.</p>
 
 <div class="stage">
-  <model-viewer src="./wardrobe.glb" alt="Fitted wardrobe, four doors, floor to ceiling"
-      camera-controls auto-rotate auto-rotate-delay="1200" rotation-per-second="18deg"
-      shadow-intensity="1" exposure="1.05" environment-image="neutral"
+  <model-viewer src="./wardrobe_product.glb" alt="Fitted wardrobe, four doors, floor to ceiling"
+      camera-controls auto-rotate auto-rotate-delay="1000" rotation-per-second="16deg"
+      shadow-intensity="1.1" shadow-softness="0.85" exposure="1.0" environment-image="neutral"
       touch-action="pan-y" ar ar-modes="webxr scene-viewer quick-look"
-      ar-scale="fixed" camera-orbit="35deg 72deg 4.4m" min-field-of-view="18deg"
-      ar-placement="floor">
+      ar-scale="fixed" camera-orbit="26deg 68deg 6.4m" field-of-view="26deg"
+      min-field-of-view="16deg" ar-placement="floor" interaction-prompt="none">
     <div class="hint" slot="progress-bar"></div>
   </model-viewer>
   <div class="hint">Drag to spin - pinch to zoom - "view in your room" on a phone</div>
