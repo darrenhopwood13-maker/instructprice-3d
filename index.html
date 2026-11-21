@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fitted wardrobes - 3.6 m bay | instructPrice</title>
+<meta name="theme-color" content="#14161C">
+<script type="module" src="./model-viewer.min.js"></script>
+<style>
+  :root { --ink:#14161C; --hi:#FFE600; --paper:#F5F3EE; --mute:#9AA0AC; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; background:var(--ink); color:var(--paper);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  header { padding:calc(18px + env(safe-area-inset-top)) 20px 14px; display:flex; align-items:baseline;
+    justify-content:space-between; gap:12px; border-bottom:1px solid #262A33; }
+  .mark { font-weight:800; font-size:15px; letter-spacing:.14em; text-transform:uppercase; }
+  .mark span { color:var(--hi); }
+  .tag { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--mute); }
+  h1 { margin:0; padding:22px 20px 4px; font-size:clamp(22px,6vw,34px); line-height:1.15; font-weight:800; }
+  .sub { padding:0 20px 16px; color:var(--mute); font-size:14px; }
+  .stage { position:relative; background:#1B1E26; border-top:1px solid #262A33; border-bottom:1px solid #262A33; }
+  model-viewer { width:100%; height:min(62vh,520px); background:#1B1E26; --poster-color:#1B1E26;
+    --progress-bar-color:var(--hi); --progress-mask:#1B1E26; }
+  .hint { position:absolute; left:0; right:0; bottom:10px; text-align:center; font-size:12px;
+    color:#B8BEC9; pointer-events:none; }
+  .specs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:18px 20px 6px; }
+  .spec { background:#1B1E26; border:1px solid #262A33; border-radius:12px; padding:12px 14px; }
+  .spec b { display:block; font-size:19px; line-height:1.1; }
+  .spec i { font-style:normal; display:block; margin-top:4px; font-size:11px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--mute); }
+  .note { margin:16px 20px 0; padding:14px 16px; border-left:3px solid var(--hi); background:#1B1E26;
+    border-radius:0 12px 12px 0; font-size:13px; line-height:1.5; color:#CFD4DC; }
+  .note b { color:var(--paper); }
+  footer { padding:22px 20px calc(28px + env(safe-area-inset-bottom)); color:var(--mute); font-size:12px;
+    line-height:1.6; }
+  a.cta { display:block; text-align:center; background:var(--hi); color:#14161C; font-weight:800;
+    text-decoration:none; padding:18px; border-radius:14px; margin:18px 20px 0; font-size:16px;
+    letter-spacing:.02em; }
+  @media (min-width:760px){ .specs { grid-template-columns:repeat(4,minmax(0,1fr)); } model-viewer { height:64vh; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="mark">instruct<span>Price</span></div>
+  <div class="tag">Prospectus</div>
+</header>
+
+<h1>Fitted wardrobes<br>3,600 bay, four doors</h1>
+<p class="sub">Spin it, open it, stand in the room with it. This is the layout we would build here.</p>
+
+<div class="stage">
+  <model-viewer src="./wardrobe.glb" alt="Fitted wardrobe, four doors, floor to ceiling"
+      camera-controls auto-rotate auto-rotate-delay="1200" rotation-per-second="18deg"
+      shadow-intensity="1" exposure="1.05" environment-image="neutral"
+      touch-action="pan-y" ar ar-modes="webxr scene-viewer quick-look"
+      ar-scale="fixed" camera-orbit="35deg 72deg 4.4m" min-field-of-view="18deg"
+      ar-placement="floor">
+    <div class="hint" slot="progress-bar"></div>
+  </model-viewer>
+  <div class="hint">Drag to spin - pinch to zoom - "view in your room" on a phone</div>
+</div>
+
+<div class="specs">
+  <div class="spec"><b>3,600 mm</b><i>Bay width</i></div>
+  <div class="spec"><b>2,400 mm</b><i>Floor to ceiling</i></div>
+  <div class="spec"><b>600 mm</b><i>Carcass depth</i></div>
+  <div class="spec"><b>4 x 900</b><i>Door widths</i></div>
+</div>
+
+<div class="note">
+  <b>What you are looking at.</b> A visualisation of the finished run at your bay size, so you can
+  judge the look before anything is ordered. Four drawers behind the left pair, a full-height
+  hanging bay and two shelves either side. Finish shown is matt oak.
+  <br><br>
+  <b>Visualisation only, subject to survey.</b> Sizes are taken from your measurements, not from the
+  wall itself. Nothing is ordered and nothing is built until we have surveyed the room and issued a
+  measured quotation.
+</div>
+
+<a class="cta" href="https://instructprice.lovable.app">Book the survey</a>
+
+<footer>
+  instructPrice - photograph it, price it, order it.<br>
+  Visualisation prepared for the client named on the covering email. Figures on the accompanying
+  prospectus, not this page, form the price guide.
+</footer>
+</body>
+</html>
