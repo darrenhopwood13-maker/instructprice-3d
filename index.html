@@ -53,8 +53,9 @@
       camera-controls auto-rotate auto-rotate-delay="1000" rotation-per-second="16deg"
       shadow-intensity="1.1" shadow-softness="0.85" exposure="1.0" environment-image="neutral"
       touch-action="pan-y" ar ar-modes="webxr scene-viewer quick-look"
-      ar-scale="fixed" camera-orbit="26deg 68deg 6.4m" field-of-view="26deg"
-      min-field-of-view="16deg" ar-placement="floor" interaction-prompt="none">
+      ar-scale="fixed" ar-placement="floor" interaction-prompt="none"
+      camera-target="auto auto auto" min-camera-orbit="auto 0deg auto"
+      max-camera-orbit="auto 100deg auto">
     <div class="hint" slot="progress-bar"></div>
   </model-viewer>
   <div class="hint">Drag to spin - pinch to zoom - "view in your room" on a phone</div>
