@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Measure a floor from a photo | instructPrice</title>
+<meta name="theme-color" content="#14161C">
+<style>
+  :root { --ink:#14161C; --hi:#FFE600; --paper:#F5F3EE; --mute:#98A0AD; --line:#262A33; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; height:100%; background:var(--ink); color:var(--paper);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    overscroll-behavior:none; }
+  header { padding:calc(12px + env(safe-area-inset-top)) 16px 10px; display:flex; align-items:center;
+    justify-content:space-between; gap:12px; border-bottom:1px solid var(--line); min-height:52px; }
+  header .mode { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:54%; }
+  .mark { font-weight:800; font-size:13px; letter-spacing:.14em; text-transform:uppercase; }
+  .mark span { color:var(--hi); }
+  .mode { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--mute); }
+  #stage { position:relative; width:100%; background:#0E1014; display:flex; align-items:center;
+    justify-content:center; overflow:hidden; }
+  canvas { display:block; touch-action:none; max-width:100%; }
+  .empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; gap:14px; padding:24px; text-align:center; }
+  .empty h1 { font-size:19px; margin:0; font-weight:800; }
+  .empty p { margin:0; color:var(--mute); font-size:13px; line-height:1.5; max-width:30ch; }
+  .btn { border:0; border-radius:14px; padding:16px 20px; font-size:15px; font-weight:800;
+    background:#242833; color:var(--paper); }
+  .btn.primary { background:var(--hi); color:#14161C; }
+  .btn.ghost { background:transparent; border:1px solid var(--line); color:var(--paper); }
+  .bar { position:fixed; left:0; right:0; bottom:0; background:#101319; border-top:1px solid var(--line);
+    padding:10px 12px calc(12px + env(safe-area-inset-bottom)); display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+  .bar .btn { padding:14px 8px; font-size:13px; text-align:center; }
+  .readout { position:absolute; left:12px; top:12px; background:rgba(12,14,18,.86);
+    border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:13px;
+    line-height:1.45; pointer-events:none; }
+  .readout b { font-size:22px; display:block; letter-spacing:-.01em; }
+  .readout i { font-style:normal; color:var(--mute); font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; }
+  .sheet { position:fixed; inset:0; background:rgba(8,9,12,.92); display:none; align-items:flex-end;
+    z-index:20; }
+  .sheet.on { display:flex; }
+  .sheet .panel { width:100%; background:#141821; border-radius:18px 18px 0 0; padding:20px 18px
+    calc(22px + env(safe-area-inset-bottom)); }
+  .sheet h2 { margin:0 0 6px; font-size:17px; }
+  .sheet p { margin:0 0 14px; color:var(--mute); font-size:13px; line-height:1.5; }
+  .sheet input { width:100%; padding:16px; font-size:22px; font-weight:800; border-radius:12px;
+    border:1px solid var(--line); background:#0E1014; color:var(--paper); margin-bottom:12px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .warn { position:absolute; right:12px; top:12px; max-width:52%; background:rgba(255,230,0,.12);
+    border:1px solid rgba(255,230,0,.4); color:#FFE600; border-radius:10px; padding:8px 10px;
+    font-size:11px; line-height:1.4; pointer-events:none; }
+</style>
+</head>
+<body>
+<header>
+  <div class="mark">instruct<span>Price</span> measure</div>
+  <div class="mode" id="mode">Tap the corners</div>
+</header>
+
+<div id="stage">
+  <canvas id="c"></canvas>
+  <div class="empty" id="empty">
+    <h1>Measure the floor off a photo</h1>
+    <p>Stand back, take the whole floor in, then tap the corners. One known length gives you the area.</p>
+    <button class="btn primary" id="take">Take a photo</button>
+    <button class="btn ghost" id="pick">Choose a photo</button>
+  </div>
+  <div class="readout" id="readout" style="display:none"></div>
+  <div class="warn" id="warn" style="display:none"></div>
+</div>
+
+<input type="file" id="file" accept="image/*" hidden>
+<input type="file" id="file2" accept="image/*" hidden>
+
+<div class="bar" id="bar" style="display:none">
+  <button class="btn" id="bScale">Scale</button>
+  <button class="btn" id="bSquare">Square up</button>
+  <button class="btn" id="bUndo">Undo</button>
+  <button class="btn" id="bNew">New</button>
+</div>
+
+<div class="sheet" id="sheet">
+  <div class="panel">
+    <h2 id="sheetTitle">How long is that line?</h2>
+    <p id="sheetHint">Type the real length between the two marks, in metres.</p>
+    <div id="oneLen">
+      <input id="len" type="number" inputmode="decimal" step="0.01" placeholder="4.00">
+    </div>
+    <div id="twoLen" style="display:none">
+      <div class="row">
+        <input id="lw" type="number" inputmode="decimal" step="0.01" placeholder="width m">
+        <input id="ld" type="number" inputmode="decimal" step="0.01" placeholder="depth m">
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="cancel">Cancel</button>
+      <button class="btn primary" id="ok">Set it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var cv = document.getElementById("c"), ctx = cv.getContext("2d");
+  var stage = document.getElementById("stage");
+  var emptyEl = document.getElementById("empty"), bar = document.getElementById("bar");
+  var readout = document.getElementById("readout"), warn = document.getElementById("warn");
+  var modeEl = document.getElementById("mode");
+
+  var img = null;            // the photo
+  var pts = [];              // tapped points in IMAGE pixels {x,y}
+  var scalePts = [];         // two points defining a known length
+  var quad = [];             // four corners of a known rectangle, clockwise
+  var state = "perimeter";   // perimeter | scale | square
+  var pxPerM = null;         // flat-photo scale
+  var H = null;              // 3x3 homography image -> metres (square-up mode)
+  var view = { s: 1, ox: 0, oy: 0, w: 0, h: 0 };
+
+  // ------------------------------------------------------------------ geometry
+  function shoelace(poly) {
+    var a = 0;
+    for (var i = 0; i < poly.length; i++) {
+      var p = poly[i], q = poly[(i + 1) % poly.length];
+      a += p.x * q.y - q.x * p.y;
+    }
+    return Math.abs(a) / 2;
+  }
+
+  function perimeter(poly) {
+    var d = 0;
+    for (var i = 0; i < poly.length; i++) {
+      var p = poly[i], q = poly[(i + 1) % poly.length];
+      d += Math.hypot(q.x - p.x, q.y - p.y);
+    }
+    return d;
+  }
+
+  // Solve a small linear system by Gaussian elimination with partial pivoting.
+  function solve(A, b) {
+    var n = b.length, i, j, k;
+    for (i = 0; i < n; i++) {
+      var piv = i;
+      for (j = i + 1; j < n; j++) if (Math.abs(A[j][i]) > Math.abs(A[piv][i])) piv = j;
+      if (Math.abs(A[piv][i]) < 1e-12) return null;
+      var t = A[i]; A[i] = A[piv]; A[piv] = t;
+      var tb = b[i]; b[i] = b[piv]; b[piv] = tb;
+      for (j = i + 1; j < n; j++) {
+        var f = A[j][i] / A[i][i];
+        for (k = i; k < n; k++) A[j][k] -= f * A[i][k];
+        b[j] -= f * b[i];
+      }
+    }
+    var x = new Array(n);
+    for (i = n - 1; i >= 0; i--) {
+      var s = b[i];
+      for (j = i + 1; j < n; j++) s -= A[i][j] * x[j];
+      x[i] = s / A[i][i];
+    }
+    return x;
+  }
+
+  // Homography from 4 image points to 4 known plan points (metres).
+  // src: [{x,y} x4] in the photo, dst: [{x,y} x4] in plan. Returns 3x3 or null.
+  function homography(src, dst) {
+    var A = [], b = [], i;
+    for (i = 0; i < 4; i++) {
+      var X = dst[i].x, Y = dst[i].y, u = src[i].x, v = src[i].y;
+      A.push([u, v, 1, 0, 0, 0, -X * u, -X * v]); b.push(X);
+      A.push([0, 0, 0, u, v, 1, -Y * u, -Y * v]); b.push(Y);
+    }
+    var h = solve(A, b);
+    if (!h) return null;
+    return [[h[0], h[1], h[2]], [h[3], h[4], h[5]], [h[6], h[7], 1]];
+  }
+
+  function applyH(M, p) {
+    var d = M[2][0] * p.x + M[2][1] * p.y + M[2][2];
+    if (Math.abs(d) < 1e-9) return { x: 0, y: 0 };
+    return {
+      x: (M[0][0] * p.x + M[0][1] * p.y + M[0][2]) / d,
+      y: (M[1][0] * p.x + M[1][1] * p.y + M[1][2]) / d
+    };
+  }
+
+  // ------------------------------------------------------------------ drawing
+  function fit() {
+    if (!img) return;
+    var availW = stage.clientWidth;
+    var availH = Math.max(200, window.innerHeight - 150);
+    var s = Math.min(availW / img.width, availH / img.height);
+    view.s = s;
+    view.w = Math.round(img.width * s);
+    view.h = Math.round(img.height * s);
+    view.ox = Math.round((availW - view.w) / 2);
+    cv.style.width = view.w + "px";
+    cv.style.height = view.h + "px";
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(view.w * dpr);
+    cv.height = Math.round(view.h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function toScreen(p) { return { x: p.x * view.s, y: p.y * view.s }; }
+
+  function draw() {
+    if (!img) return;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(img, 0, 0, view.w, view.h);
+
+    var poly = (state === "square" ? quad : (state === "scale" ? scalePts : pts));
+
+    if (poly.length > 1) {
+      ctx.beginPath();
+      poly.forEach(function (p, i) {
+        var q = toScreen(p);
+        i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y);
+      });
+      if (poly === pts && pts.length > 2) ctx.closePath();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = poly === quad ? "#FFE600" : "#FFE600";
+      ctx.stroke();
+      if (poly === pts && pts.length > 2) {
+        ctx.fillStyle = "rgba(255,230,0,0.12)";
+        ctx.fill();
+      }
+    }
+
+    poly.forEach(function (p, i) {
+      var q = toScreen(p);
+      ctx.beginPath();
+      ctx.arc(q.x, q.y, 9, 0, Math.PI * 2);
+      ctx.fillStyle = "#14161C";
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#FFE600";
+      ctx.stroke();
+      ctx.fillStyle = "#FFE600";
+      ctx.font = "700 11px -apple-system, Segoe UI, Roboto, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(i + 1), q.x, q.y + 0.5);
+    });
+
+    updateReadout();
+    publishState();
+  }
+
+  function fmt(n, d) { return n.toFixed(d === undefined ? 2 : d); }
+
+  // a small read-only hook so a headless test can check where the taps actually landed
+  function publishState() {
+    window.__m = { pts: pts.slice(), quad: quad.slice(), scale: scalePts.slice(),
+                   H: H, pxPerM: pxPerM, s: view.s, mode: state };
+  }
+
+  function updateReadout() {
+    if (pts.length < 3) {
+      readout.style.display = "none";
+      return;
+    }
+    var area, unit, note;
+    if (H) {
+      var plan = pts.map(function (p) { return applyH(H, p); });
+      area = shoelace(plan);
+      unit = "m² squared up";
+      note = "perspective removed from the reference rectangle";
+    } else if (pxPerM) {
+      area = shoelace(pts) / (pxPerM * pxPerM);
+      unit = "m² flat estimate";
+      note = "scale from one length, photo not squared up";
+    } else {
+      readout.style.display = "block";
+      readout.innerHTML = "<b>" + pts.length + " points</b><i>now set a scale</i>";
+      return;
+    }
+    readout.style.display = "block";
+    readout.innerHTML = "<b>" + fmt(area) + " m²</b><i>" + unit + "</i>" +
+      "<br><span style='color:#98A0AD;font-size:11px'>" + note + "</span>";
+  }
+
+  // ------------------------------------------------------------------ interaction
+  function addPoint(ev) {
+    if (!img) return;
+    if (state === "perimeter" && pts.length >= 24) return;
+    var r = cv.getBoundingClientRect();
+    var p = {
+      x: (ev.clientX - r.left) / view.s,
+      y: (ev.clientY - r.top) / view.s
+    };
+    if (state === "scale") {
+      if (scalePts.length >= 2) scalePts = [];
+      scalePts.push(p);
+      if (scalePts.length === 2) openSheet("scale");
+    } else if (state === "square") {
+      if (quad.length >= 4) quad = [];
+      quad.push(p);
+      if (quad.length === 4) openSheet("square");
+    } else {
+      pts.push(p);
+    }
+    draw();
+  }
+
+  ["pointerdown"].forEach(function (evt) {
+    cv.addEventListener(evt, function (e) {
+      e.preventDefault();
+      addPoint(e);
+    }, { passive: false });
+  });
+
+  // ------------------------------------------------------------------ sheets
+  var sheet = document.getElementById("sheet");
+  var sheetTitle = document.getElementById("sheetTitle");
+  var sheetHint = document.getElementById("sheetHint");
+  var oneLen = document.getElementById("oneLen"), twoLen = document.getElementById("twoLen");
+  var lenEl = document.getElementById("len"), lwEl = document.getElementById("lw"), ldEl = document.getElementById("ld");
+  var pending = null;
+
+  function openSheet(kind) {
+    pending = kind;
+    sheet.classList.add("on");
+    if (kind === "scale") {
+      oneLen.style.display = "block"; twoLen.style.display = "none";
+      sheetTitle.textContent = "How long is that line?";
+      sheetHint.textContent = "Type the real length between marks 1 and 2, in metres. A doorway, a known wall, a sheet of ply - anything you actually measured.";
+      setTimeout(function () { lenEl.focus(); }, 120);
+    } else {
+      oneLen.style.display = "none"; twoLen.style.display = "block";
+      sheetTitle.textContent = "How big is that rectangle?";
+      sheetHint.textContent = "Marks 1 to 4 must be the corners of something square or rectangular you know both sides of, in order round the edge. This is what removes the photo's perspective.";
+      setTimeout(function () { lwEl.focus(); }, 120);
+    }
+  }
+
+  function closeSheet() { sheet.classList.remove("on"); pending = null; }
+
+  document.getElementById("cancel").addEventListener("click", function () {
+    scalePts = []; quad = []; state = "perimeter"; setMode(); draw(); closeSheet();
+  });
+
+  document.getElementById("ok").addEventListener("click", function () {
+    if (pending === "scale") {
+      var L = parseFloat(lenEl.value);
+      if (!(L > 0)) { lenEl.focus(); return; }
+      var pxLen = Math.hypot(scalePts[1].x - scalePts[0].x, scalePts[1].y - scalePts[0].y);
+      pxPerM = pxLen / L;
+      state = "perimeter";
+      scalePts = [];
+      H = null;
+    } else {
+      var w = parseFloat(lwEl.value), d = parseFloat(ldEl.value);
+      if (!(w > 0 && d > 0)) { lwEl.focus(); return; }
+      // order: 1 top-left, 2 top-right, 3 bottom-right, 4 bottom-left in the photo
+      var dst = [{ x: 0, y: 0 }, { x: w, y: 0 }, { x: w, y: d }, { x: 0, y: d }];
+      H = homography(quad, dst);
+      if (!H) { sheetHint.textContent = "Those four marks are too close to a straight line - retake them round a rectangle."; return; }
+      pxPerM = null;
+      state = "perimeter";
+      quad = [];
+    }
+    setMode();
+    draw();
+    closeSheet();
+  });
+
+  function setMode() {
+    modeEl.textContent = state === "scale" ? "Tap the two ends"
+      : state === "square" ? "Tap 4 corners, in order"
+      : (H ? "Tap the perimeter (squared up)" : "Tap the corners");
+  }
+
+  // ------------------------------------------------------------------ buttons
+  document.getElementById("take").addEventListener("click", function () {
+    var f = document.getElementById("file");
+    f.setAttribute("capture", "environment");
+    f.click();
+  });
+  document.getElementById("pick").addEventListener("click", function () {
+    var f = document.getElementById("file2");
+    f.removeAttribute("capture");
+    f.click();
+  });
+
+  function loadFile(input) {
+    input.addEventListener("change", function (e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      var url = URL.createObjectURL(file);
+      var im = new Image();
+      im.onload = function () {
+        img = im;
+        pts = []; scalePts = []; quad = []; pxPerM = null; H = null; state = "perimeter";
+        emptyEl.style.display = "none";
+        bar.style.display = "grid";
+        warn.style.display = "block";
+        warn.textContent = "Photo measures are an estimate. Tap Scale, then type a length you actually measured.";
+        fit(); setMode(); draw();
+        URL.revokeObjectURL(url);
+      };
+      im.onerror = function () {
+        warn.style.display = "block";
+        warn.textContent = "That photo would not open. Try a JPEG, or take it again with the camera button.";
+      };
+      im.src = url;
+    });
+  }
+  loadFile(document.getElementById("file"));
+  loadFile(document.getElementById("file2"));
+
+  document.getElementById("bScale").addEventListener("click", function () {
+    if (!img) return;
+    state = "scale"; scalePts = []; setMode(); draw();
+  });
+  document.getElementById("bSquare").addEventListener("click", function () {
+    if (!img) return;
+    state = "square"; quad = []; setMode(); draw();
+  });
+  document.getElementById("bUndo").addEventListener("click", function () {
+    if (state === "scale") scalePts.pop();
+    else if (state === "square") quad.pop();
+    else pts.pop();
+    draw();
+  });
+  document.getElementById("bNew").addEventListener("click", function () {
+    document.getElementById("pick").click();
+  });
+
+  window.addEventListener("resize", function () { fit(); draw(); });
+  setMode();
+})();
+</script>
+</body>
+</html>
