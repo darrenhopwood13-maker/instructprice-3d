@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Garden wall - 6 m run, brick, piers | instructPrice</title>
+<meta name="theme-color" content="#14161C">
+<script type="module" src="./model-viewer.min.js"></script>
+<style>
+  :root { --ink:#14161C; --hi:#FFE600; --paper:#F5F3EE; --mute:#9AA0AC; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; background:var(--ink); color:var(--paper);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  header { padding:calc(18px + env(safe-area-inset-top)) 20px 14px; display:flex; align-items:baseline;
+    justify-content:space-between; gap:12px; border-bottom:1px solid #262A33; }
+  .mark { font-weight:800; font-size:15px; letter-spacing:.14em; text-transform:uppercase; }
+  .mark span { color:var(--hi); }
+  .tag { font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--mute); }
+  h1 { margin:0; padding:22px 20px 4px; font-size:clamp(22px,6vw,34px); line-height:1.15; font-weight:800; }
+  .sub { padding:0 20px 16px; color:var(--mute); font-size:14px; }
+  .stage { position:relative; background:#1B1E26; border-top:1px solid #262A33; border-bottom:1px solid #262A33; }
+  model-viewer { width:100%; height:min(62vh,520px); background:#1B1E26; --poster-color:#1B1E26;
+    --progress-bar-color:var(--hi); --progress-mask:#1B1E26; }
+  .hint { position:absolute; left:0; right:0; bottom:10px; text-align:center; font-size:12px;
+    color:#B8BEC9; pointer-events:none; }
+  .specs { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:18px 20px 6px; }
+  .spec { background:#1B1E26; border:1px solid #262A33; border-radius:12px; padding:12px 14px; }
+  .spec b { display:block; font-size:19px; line-height:1.1; }
+  .spec i { font-style:normal; display:block; margin-top:4px; font-size:11px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--mute); }
+  .note { margin:16px 20px 0; padding:14px 16px; border-left:3px solid var(--hi); background:#1B1E26;
+    border-radius:0 12px 12px 0; font-size:13px; line-height:1.5; color:#CFD4DC; }
+  .note b { color:var(--paper); }
+  footer { padding:22px 20px calc(28px + env(safe-area-inset-bottom)); color:var(--mute); font-size:12px;
+    line-height:1.6; }
+  a.cta { display:block; text-align:center; background:var(--hi); color:#14161C; font-weight:800;
+    text-decoration:none; padding:18px; border-radius:14px; margin:18px 20px 0; font-size:16px;
+    letter-spacing:.02em; }
+  @media (min-width:760px){ .specs { grid-template-columns:repeat(4,minmax(0,1fr)); } model-viewer { height:64vh; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="mark">instruct<span>Price</span></div>
+  <div class="tag">Prospectus</div>
+</header>
+
+<h1>Garden wall<br>6.0 m run, two piers</h1>
+<p class="sub">Spin it, and on a phone stand it on your own boundary. Six metre run, one-brick thick, piers at the ends and mid-run.</p>
+
+<div class="stage">
+  <model-viewer src="./wall.glb" alt="Garden wall, six metre run, brick, with piers and copings"
+      camera-controls auto-rotate auto-rotate-delay="1000" rotation-per-second="16deg"
+      shadow-intensity="1.1" shadow-softness="0.85" exposure="1.0" environment-image="neutral"
+      touch-action="pan-y" ar ar-modes="webxr scene-viewer quick-look"
+      ar-scale="fixed" ar-placement="floor" interaction-prompt="none"
+      camera-orbit="28deg 52deg 5.00m"
+      camera-target="auto auto auto" min-camera-orbit="auto 0deg auto"
+      max-camera-orbit="auto 100deg auto">
+    <div class="hint" slot="progress-bar"></div>
+  </model-viewer>
+  <div class="hint">Drag to spin - pinch to zoom - "view in your room" on a phone</div>
+</div>
+
+<div class="specs">
+  <div class="spec"><b>6.00 m</b><i>Run length</i></div>
+  <div class="spec"><b>1.80 m</b><i>Wall height</i></div>
+  <div class="spec"><b>215 mm</b><i>One brick thick</i></div>
+  <div class="spec"><b>3 no.</b><i>440 piers, 2.10 high</i></div>
+</div>
+
+<div class="note">
+  <b>What you are looking at.</b> The wall at your measured run: London stock brick in stretcher
+  bond, one brick (215 mm) thick, 1.80 m high, with a 440 mm pier at each end and one mid-run rising
+  to 2.10 m, all under saddleback coping. The piers are there because a run this length needs them -
+  not for looks.
+  <br><br>
+  <b>Visualisation only, subject to survey.</b> Sizes are taken from your measurements, not from the
+  ground itself. Ground conditions, drainage and any boundary or consent question are confirmed on
+  site. A wall over 2 m, or near a boundary or highway, may need consent - the quotation says so
+  plainly rather than burying it.
+</div>
+
+<a class="cta" href="https://instructprice.lovable.app">Book the survey</a>
+
+<footer>
+  instructPrice - photograph it, price it, order it.<br>
+  Visualisation prepared for the client named on the covering email. Figures on the accompanying
+  prospectus, not this page, form the price guide.
+</footer>
+</body>
+</html>
